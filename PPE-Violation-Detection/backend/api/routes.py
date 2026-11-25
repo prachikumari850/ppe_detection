@@ -2,7 +2,7 @@ from pathlib import Path
 import shutil
 import uuid
 from sqlalchemy import desc
-from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile , status
 from sqlalchemy.orm import Session
 
 from backend.ai.detector import detector
@@ -14,7 +14,8 @@ from backend.database.models import DetectionRecord
 router = APIRouter()
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-UPLOAD_DIR = PROJECT_ROOT / "storage" / "uploads"
+UPLOAD_DIR = PROJECT_ROOT / "storage" / "uploads" 
+PROCESSED_DIR = PROJECT_ROOT / "storage" / "processed"
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
@@ -130,4 +131,54 @@ def get_detection_history(
         raise HTTPException(
             status_code=500,
             detail=f"Unable to retrieve detection history: {str(exc)}"
+        )
+
+
+@router.delete("/history/{record_id}")
+def delete_detection_history(
+    record_id: int,
+    db: Session = Depends(get_db)
+):
+    record = db.query(DetectionRecord).filter(
+        DetectionRecord.id == record_id
+    ).first()
+
+    if not record:
+        raise HTTPException(
+            status_code=404,
+            detail="Detection history record not found"
+        )
+
+    # Save file paths before deleting the database record.
+    uploaded_path = UPLOAD_DIR / record.image_name
+
+    annotated_path = (
+        PROJECT_ROOT / record.annotated_image.replace("\\", "/")
+    ).resolve()
+
+    try:
+        db.delete(record)
+        db.commit()
+
+        # Remove the associated files if they exist.
+        for file_path in [uploaded_path, annotated_path]:
+            try:
+                file_path.resolve().relative_to(
+                    (PROJECT_ROOT / "storage").resolve()
+                )
+                if file_path.is_file():
+                    file_path.unlink()
+            except (ValueError, OSError):
+                pass
+
+        return {
+            "success": True,
+            "message": f"Detection record #{record_id} deleted successfully"
+        }
+
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Unable to delete detection record: {str(exc)}"
         )
