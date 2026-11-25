@@ -5,10 +5,15 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
 from backend.api.routes import router
+from backend.database.database import Base, engine
+from backend.database import models
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = PROJECT_ROOT / "storage" / "processed"
+
+Base.metadata.create_all(bind=engine)
+
 
 app = FastAPI(
     title="PPE Violation Detection API",
