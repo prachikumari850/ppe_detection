@@ -28,7 +28,7 @@ CLASS_MAPPING = {
 
 class PPEDetector:
 
-    def __init__(self, confidence: float = 0.25):
+    def __init__(self, confidence: float = 0.40):
         if not MODEL_PATH.exists():
             raise FileNotFoundError(
                 f"PPE model not found: {MODEL_PATH}"

@@ -147,19 +147,19 @@ if "last_result" in st.session_state:
     col1, col2, col3, col4 = st.columns(4)
 
     col1.metric(
-        "Persons Detected",
-        summary["total_persons_detected"],
+    "Persons Detected",
+    summary["total_persons_detected"],
     )
     col2.metric(
-        "Missing Helmets",
+        "No-Helmet Detections",
         summary["missing_helmets_detected"],
     )
     col3.metric(
-        "Missing Vests",
+        "No-Vest Detections",
         summary["missing_vests_detected"],
     )
     col4.metric(
-        "Detected Violations",
+        "Total Violation Detections",
         summary["total_violations_detected"],
     )
 
@@ -217,9 +217,9 @@ else:
             with col2:
                 summary = record["summary"]
                 st.write(
-                    f"Persons: {summary['total_persons_detected']}  |  "
-                    f"Missing helmets: {summary['missing_helmets_detected']}  |  "
-                    f"Missing vests: {summary['missing_vests_detected']}"
+                    f"Persons detected: {summary['total_persons_detected']}  |  "
+                    f"No-helmet detections: {summary['missing_helmets_detected']}  |  "
+                    f"No-vest detections: {summary['missing_vests_detected']}"
                 )
                 st.write(
                     f"Total detected violations: "
