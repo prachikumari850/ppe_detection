@@ -293,7 +293,7 @@ A dedicated GPU is not required because the current detector uses CPU inference.
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/prachikumari850/ppe_detection.git
 cd ppe_detection
 ```
 
